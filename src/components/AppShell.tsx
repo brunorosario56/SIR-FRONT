@@ -7,7 +7,8 @@ export type NavKey =
   | "dashboard"
   | "schedule"
   | "groups"
-  | "colegas";
+  | "colegas"
+  | "sessions";
 
 /**
  * Props do AppShell
@@ -37,6 +38,7 @@ export default function AppShell({
           <NavItem label="Horário" active={active === "schedule"} onClick={() => onChange("schedule")} />
           <NavItem label="Grupos" active={active === "groups"} onClick={() => onChange("groups")} />
           <NavItem label="Colegas" active={active === "colegas"} onClick={() => onChange("colegas")} />
+          <NavItem label="Study Sessions" active={active === "sessions"} onClick={() => onChange("sessions")} />
         </nav>
 
         {onLogout && (

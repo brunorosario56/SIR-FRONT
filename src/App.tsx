@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import SchedulePage from "./pages/SchedulePage";
 import GroupsPage from "./pages/GroupsPage";
 import ColegasPage from "./pages/ColegasPage";
+import StudySessionsPage from "./pages/StudySessionsPage";
 import AppShell, { type NavKey } from "./components/AppShell";
 import type { PresenceEntry } from "./api/types";
 
@@ -14,12 +15,14 @@ const navRoutes: Record<NavKey, string> = {
   schedule: "/schedule",
   groups: "/groups",
   colegas: "/colegas",
+  sessions: "/sessions",
 };
 
 function navKeyFromPath(pathname: string): NavKey {
   if (pathname.startsWith("/schedule")) return "schedule";
   if (pathname.startsWith("/groups")) return "groups";
   if (pathname.startsWith("/colegas")) return "colegas";
+  if (pathname.startsWith("/sessions")) return "sessions";
   return "dashboard";
 }
 
@@ -61,6 +64,7 @@ export default function App() {
           <Route path="schedule" element={<SchedulePage />} />
           <Route path="groups" element={<GroupsPage />} />
           <Route path="colegas" element={<ColegasPage />} />
+          <Route path="sessions" element={<StudySessionsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
