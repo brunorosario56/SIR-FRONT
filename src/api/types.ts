@@ -48,3 +48,11 @@ export type PresenceEntry = {
   online: boolean;
   lastSeen?: string;
 };
+
+export type FriendRequest = {
+  _id: string;
+  from: User;
+  to: User;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: string;
+};

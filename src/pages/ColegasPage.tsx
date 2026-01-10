@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { addColega, getMyColegas } from "../api/endpoints";
-import type { User } from "../api/types";
+import { getMyColegas, getFriendRequests, respondFriendRequest, sendFriendRequest } from "../api/endpoints";
+import type { FriendRequest, User } from "../api/types";
 import { Button, Card, Input, Label, Pill } from "../components/ui";
 import type { AppOutletContext } from "../App";
 
 export default function ColegasPage() {
   const { presence } = useOutletContext<AppOutletContext>();
   const [colegas, setColegas] = useState<User[]>([]);
+  const [incoming, setIncoming] = useState<FriendRequest[]>([]);
+  const [outgoing, setOutgoing] = useState<FriendRequest[]>([]);
   const [email, setEmail] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -17,6 +19,9 @@ export default function ColegasPage() {
     try {
       const data = await getMyColegas();
       setColegas(data.colegas || []);
+      const reqs = await getFriendRequests();
+      setIncoming(reqs.incoming || []);
+      setOutgoing(reqs.outgoing || []);
     } catch (e: any) {
       setErr(e?.response?.data?.message || "Erro ao obter colegas.");
     }
@@ -35,11 +40,24 @@ export default function ColegasPage() {
     setBusy(true);
     setErr(null);
     try {
-      await addColega(email.trim());
+      await sendFriendRequest(email.trim());
       setEmail("");
       await load();
     } catch (e: any) {
-      setErr(e?.response?.data?.message || "Erro ao adicionar colega.");
+      setErr(e?.response?.data?.message || "Erro ao enviar pedido.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRespond(requestId: string, decision: "accept" | "reject") {
+    setBusy(true);
+    setErr(null);
+    try {
+      await respondFriendRequest(requestId, decision);
+      await load();
+    } catch (e: any) {
+      setErr(e?.response?.data?.message || "Erro ao responder ao pedido.");
     } finally {
       setBusy(false);
     }
@@ -68,6 +86,55 @@ export default function ColegasPage() {
           </div>
         </div>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <Card>
+          <div className="text-sm text-white/60 mb-2">Pedidos recebidos ({incoming.length})</div>
+          <div className="space-y-2">
+            {incoming.map((req) => (
+              <div key={req._id} className="rounded-xl border border-white/10 bg-black/30 p-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-medium">{req.from.nome}</div>
+                  <div className="text-xs text-white/60">{req.from.email}</div>
+                  <div className="text-[11px] text-white/40 mt-1">
+                    Pedido em {new Date(req.createdAt).toLocaleString()}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" onClick={() => onRespond(req._id, "reject")} disabled={busy}>
+                    Rejeitar
+                  </Button>
+                  <Button onClick={() => onRespond(req._id, "accept")} disabled={busy}>
+                    Aceitar
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {incoming.length === 0 && <div className="text-sm text-white/50">Sem pedidos pendentes.</div>}
+          </div>
+        </Card>
+
+        <Card>
+          <div className="text-sm text-white/60 mb-2">Pedidos enviados ({outgoing.length})</div>
+          <div className="space-y-2">
+            {outgoing.map((req) => (
+              <div key={req._id} className="rounded-xl border border-white/10 bg-black/30 p-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium">{req.to.nome}</div>
+                  <div className="text-xs text-white/60">{req.to.email}</div>
+                  <div className="text-[11px] text-white/40 mt-1">
+                    Enviado em {new Date(req.createdAt).toLocaleString()}
+                  </div>
+                </div>
+                <Pill>
+                  {req.status === "pending" ? "Pendente" : req.status === "accepted" ? "Aceite" : "Rejeitado"}
+                </Pill>
+              </div>
+            ))}
+            {outgoing.length === 0 && <div className="text-sm text-white/50">Ainda não enviaste pedidos.</div>}
+          </div>
+        </Card>
+      </div>
 
       <Card>
         <div className="text-sm text-white/60 mb-3">Colegas ({sorted.length})</div>
