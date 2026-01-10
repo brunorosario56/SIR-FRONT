@@ -4,6 +4,7 @@ import { Card, Pill } from "../components/ui";
 import { useAuth } from "../auth/AuthContext";
 import type { AppOutletContext } from "../App";
 import { getMyGroups, getMySchedule } from "../api/endpoints";
+import StudySessionsPage from "./StudyEvent";
 
 export default function Dashboard() {
   const { user } = useAuth();

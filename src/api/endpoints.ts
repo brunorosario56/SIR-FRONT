@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { FriendRequest, Group, Schedule, StudyEvent, User } from "./types";
+import type { Group, Schedule, StudyEvent, User } from "./types";
 
 export async function authLogin(email: string, password: string) {
   const { data } = await api.post<{ token: string }>("/auth/login", { email, password });
@@ -36,21 +36,6 @@ export async function addColega(email: string) {
   return data;
 }
 
-export async function sendFriendRequest(email: string) {
-  const { data } = await api.post("/friend-requests", { email });
-  return data;
-}
-
-export async function getFriendRequests() {
-  const { data } = await api.get<{ incoming: FriendRequest[]; outgoing: FriendRequest[] }>("/friend-requests");
-  return data;
-}
-
-export async function respondFriendRequest(requestId: string, decision: "accept" | "reject") {
-  const { data } = await api.post(`/friend-requests/${requestId}/respond`, { decision });
-  return data;
-}
-
 export async function getMyGroups() {
   const { data } = await api.get<Group[]>("/groups/me");
   return data;
@@ -81,3 +66,9 @@ export async function getGroupEvents(groupId: string) {
   const { data } = await api.get<StudyEvent[]>(`/groups/${groupId}/events`);
   return data;
 }
+
+export async function getMyEvents() {
+  const { data } = await api.get<StudyEvent[]>("/events/me");
+  return data;
+}
+
