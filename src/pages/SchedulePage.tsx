@@ -30,8 +30,61 @@ export default function SchedulePage() {
     })();
   }, []);
 
-  const sorted = useMemo(() => {
-    return [...blocos].sort((a, b) => (a.diaSemana - b.diaSemana) || a.horaInicio.localeCompare(b.horaInicio));
+
+  // Generate 30-minute time slots from earliest to latest block
+  const timeSlots = useMemo(() => {
+    if (blocos.length === 0) return [];
+    
+    const times: string[] = [];
+    blocos.forEach(b => {
+      times.push(b.horaInicio, b.horaFim);
+    });
+    
+    if (times.length === 0) return ["09:00", "18:00"];
+    
+    // Find min and max times
+    const sorted = times.sort();
+    const [startHour, startMin] = sorted[0].split(':').map(Number);
+    const [endHour, endMin] = sorted[sorted.length - 1].split(':').map(Number);
+    
+    // Generate 30-min slots
+    const slots: string[] = [];
+    let currentHour = startHour;
+    let currentMin = startMin;
+    
+    while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+      slots.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`);
+      currentMin += 30;
+      if (currentMin >= 60) {
+        currentMin = 0;
+        currentHour++;
+      }
+    }
+    slots.push(`${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`);
+    
+    return slots;
+  }, [blocos]);
+
+  // Assign colors to disciplines
+  const disciplineColors = useMemo(() => {
+    const colors = [
+      "from-blue-500/20 to-blue-600/20 border-blue-500/40",
+      "from-purple-500/20 to-purple-600/20 border-purple-500/40",
+      "from-green-500/20 to-green-600/20 border-green-500/40",
+      "from-orange-500/20 to-orange-600/20 border-orange-500/40",
+      "from-pink-500/20 to-pink-600/20 border-pink-500/40",
+      "from-cyan-500/20 to-cyan-600/20 border-cyan-500/40",
+      "from-yellow-500/20 to-yellow-600/20 border-yellow-500/40",
+      "from-red-500/20 to-red-600/20 border-red-500/40",
+    ];
+    
+    const map = new Map<string, string>();
+    const uniqueDisciplines = Array.from(new Set(blocos.map(b => b.disciplina)));
+    uniqueDisciplines.forEach((disc, idx) => {
+      map.set(disc, colors[idx % colors.length]);
+    });
+    
+    return map;
   }, [blocos]);
 
   function addBlock() {
@@ -58,6 +111,19 @@ export default function SchedulePage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  // Helper function to calculate slot span
+  function calculateSlotSpan(startTime: string, endTime: string): number {
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
+    const durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+    return Math.max(1, Math.ceil(durationMinutes / 30));
+  }
+
+  // Helper function to find which slot index a time belongs to
+  function findSlotIndex(time: string): number {
+    return timeSlots.findIndex(slot => slot === time);
   }
 
   if (loading) return <div className="p-2">A carregar…</div>;
@@ -116,24 +182,90 @@ export default function SchedulePage() {
         </div>
       </Card>
 
-      <Card>
-        <div className="text-sm text-white/60 mb-3">Blocos ({sorted.length})</div>
-        <div className="space-y-2">
-          {sorted.map((b, idx) => (
-            <div key={idx} className="rounded-xl border border-white/10 bg-black/30 p-3 flex items-center justify-between gap-3">
-              <div>
-                <div className="font-medium">{b.disciplina}</div>
-                <div className="text-xs text-white/60">
-                  {days[b.diaSemana]} • {b.horaInicio}-{b.horaFim} {b.sala ? `• ${b.sala}` : ""}
-                </div>
-              </div>
-              <Button variant="ghost" onClick={() => removeIdx(idx)}>
-                Remover
-              </Button>
-            </div>
-          ))}
+      <Card className="p-0 overflow-hidden">
+        <div className="p-4 border-b border-white/10">
+          <div className="text-sm text-white/60">Horário Semanal</div>
+        </div>
 
-          {sorted.length === 0 && <div className="text-sm text-white/50">Ainda não tens blocos.</div>}
+        {blocos.length === 0 ? (
+          <div className="p-8 text-center text-sm text-white/50">
+            Ainda não tens blocos no horário.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {/* Header with days */}
+              <div className="grid grid-cols-8 border-b border-white/10">
+                <div className="p-3 text-xs font-medium text-white/40 border-r border-white/10">Hora</div>
+                {[1, 2, 3, 4, 5, 6, 7].map(day => (
+                  <div key={day} className="p-3 text-center text-sm font-medium border-r border-white/10 last:border-r-0">
+                    {days[day]}
+                  </div>
+                ))}
+              </div>
+
+              {/* Time slots rows */}
+              {timeSlots.slice(0, -1).map((startTime, idx) => {
+                return (
+                  <div key={startTime} className="grid grid-cols-8 border-b border-white/10 last:border-b-0 h-[60px]">
+                    {/* Time label */}
+                    <div className="p-3 text-xs text-white/40 border-r border-white/10 flex items-start">
+                      <div>{startTime}</div>
+                    </div>
+
+                    {/* Day columns */}
+                    {[1, 2, 3, 4, 5, 6, 7].map(day => {
+                      // Find blocks that START in this time slot for this day
+                      const dayBlocks = blocos.filter(b => 
+                        b.diaSemana === day && 
+                        b.horaInicio === startTime
+                      );
+
+                      return (
+                        <div key={day} className="p-2 border-r border-white/10 last:border-r-0 relative">
+                          {dayBlocks.map((block, blockIdx) => {
+                            const colorClass = disciplineColors.get(block.disciplina) || "from-gray-500/20 to-gray-600/20 border-gray-500/40";
+                            const originalIdx = blocos.findIndex(b => b === block);
+                            const spanSlots = calculateSlotSpan(block.horaInicio, block.horaFim);
+                            
+                            return (
+                              <div
+                                key={blockIdx}
+                                className={`absolute inset-x-2 top-2 rounded-lg border bg-gradient-to-br ${colorClass} p-2 group hover:scale-[1.02] transition-transform cursor-pointer overflow-hidden`}
+                                style={{
+                                  height: `calc(${spanSlots * 60}px - 8px)`,
+                                  zIndex: 10
+                                }}
+                              >
+                                <div className="text-xs font-semibold mb-1 line-clamp-2">{block.disciplina}</div>
+                                <div className="text-[10px] text-white/60 space-y-0.5">
+                                  <div>{block.horaInicio} - {block.horaFim}</div>
+                                  {block.sala && <div>📍 {block.sala}</div>}
+                                </div>
+                                <button
+                                  onClick={() => removeIdx(originalIdx)}
+                                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/80 hover:bg-red-500 rounded px-1.5 py-0.5 text-[10px] font-medium"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="p-4 border-t border-white/10 flex justify-between items-center">
+          <div className="text-xs text-white/40">{blocos.length} blocos no total</div>
+          <Button variant="ghost" onClick={saveAll} disabled={saving}>
+            {saving ? "A guardar..." : "Guardar alterações"}
+          </Button>
         </div>
       </Card>
     </div>
