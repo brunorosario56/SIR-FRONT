@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../api/auth";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,8 +17,8 @@ export default function Register() {
     setErr(null);
     setLoading(true);
     try {
-      await register({ email, password, username: username || undefined });
-      navigate("/login");
+      await register(username || email, email, password);
+      navigate("/", { replace: true });
     } catch (e: any) {
       setErr(e?.response?.data?.message ?? "Falha no registo.");
     } finally {

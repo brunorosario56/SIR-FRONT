@@ -2,6 +2,8 @@ export type User = {
   _id: string;
   nome: string;
   email: string;
+  avatar?: string;
+  createdAt?: string;
 };
 
 export type ScheduleBlock = {
@@ -21,8 +23,8 @@ export type Group = {
   _id: string;
   nome: string;
   descricao?: string;
-  owner: string;
-  membros: string[];
+  owner: string | User;
+  membros: string[] | User[];
 };
 
 export type Slot = {
@@ -33,8 +35,8 @@ export type Slot = {
 
 export type StudyEvent = {
   _id: string;
-  group: string;
-  criador: string;
+  group: string | Group;
+  criador: string | User;
   titulo: string;
   descricao?: string;
   inicio: string; // ISO
@@ -55,4 +57,10 @@ export type FriendRequest = {
   to: User;
   status: "pending" | "accepted" | "rejected";
   createdAt: string;
+};
+
+export type GroupSlotsResponse = {
+  groupId: string;
+  slots: Slot[];
+  membros?: User[];
 };

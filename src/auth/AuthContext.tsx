@@ -24,16 +24,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthToken(tk);
       const me = await authMe();
       setUser(me);
-    } catch {
-      logout();
-    } finally {
+      setLoading(false);
+    } catch (err) {
+      console.error("Erro ao carregar utilizador:", err);
+      // Se o token é inválido, limpa tudo
+      localStorage.removeItem("token");
+      setAuthToken();
+      setToken(null);
+      setUser(null);
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (token) loadMe(token);
-    else setLoading(false);
+    if (token) {
+      loadMe(token);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   async function login(email: string, password: string) {

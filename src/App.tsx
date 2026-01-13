@@ -7,6 +7,8 @@ import SchedulePage from "./pages/SchedulePage";
 import GroupsPage from "./pages/GroupsPage";
 import ColegasPage from "./pages/ColegasPage";
 import StudySessionsPage from "./pages/StudySessionsPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { CalendarPage } from "./pages/CalendarPage";
 import AppShell, { type NavKey } from "./components/AppShell";
 import type { PresenceEntry } from "./api/types";
 
@@ -16,6 +18,8 @@ const navRoutes: Record<NavKey, string> = {
   groups: "/groups",
   colegas: "/colegas",
   sessions: "/sessions",
+  profile: "/profile",
+  calendar: "/calendar",
 };
 
 function navKeyFromPath(pathname: string): NavKey {
@@ -23,6 +27,8 @@ function navKeyFromPath(pathname: string): NavKey {
   if (pathname.startsWith("/groups")) return "groups";
   if (pathname.startsWith("/colegas")) return "colegas";
   if (pathname.startsWith("/sessions")) return "sessions";
+  if (pathname.startsWith("/profile")) return "profile";
+  if (pathname.startsWith("/calendar")) return "calendar";
   return "dashboard";
 }
 
@@ -34,7 +40,14 @@ function PrivateLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (loading) return <div className="p-6">A carregar…</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
+        <div className="text-white text-lg">A carregar…</div>
+      </div>
+    );
+  }
+  
   if (!user) return <Navigate to="/login" replace />;
 
   const active = navKeyFromPath(location.pathname);
@@ -65,6 +78,8 @@ export default function App() {
           <Route path="groups" element={<GroupsPage />} />
           <Route path="colegas" element={<ColegasPage />} />
           <Route path="sessions" element={<StudySessionsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="calendar" element={<CalendarPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ScheduleBlock } from "../api/types";
 import { getMySchedule, putMySchedule } from "../api/endpoints";
-import { Button, Card, Input, Label } from "../components/ui";
+import { Button, Card, Input, Label, Select } from "../components/ui";
 
 const days = ["", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
@@ -106,10 +106,22 @@ export default function SchedulePage() {
     setErr(null);
     try {
       await putMySchedule(blocos);
+      // Show success message briefly
+      const successMsg = document.createElement('div');
+      successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+      successMsg.textContent = 'Horário guardado!';
+      document.body.appendChild(successMsg);
+      setTimeout(() => successMsg.remove(), 2000);
     } catch (e: any) {
       setErr(e?.response?.data?.message || "Erro ao guardar horário.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  function clearAll() {
+    if (confirm('Apagar todos os blocos?')) {
+      setBlocos([]);
     }
   }
 
@@ -152,14 +164,19 @@ export default function SchedulePage() {
           </div>
 
           <div>
-            <Label>Dia (1..7)</Label>
-            <Input
-              type="number"
-              min={1}
-              max={7}
+            <Label>Dia da semana</Label>
+            <Select
               value={draft.diaSemana}
               onChange={(e) => setDraft((d) => ({ ...d, diaSemana: Number(e.target.value) }))}
-            />
+            >
+              <option value={1}>Segunda</option>
+              <option value={2}>Terça</option>
+              <option value={3}>Quarta</option>
+              <option value={4}>Quinta</option>
+              <option value={5}>Sexta</option>
+              <option value={6}>Sábado</option>
+              <option value={7}>Domingo</option>
+            </Select>
           </div>
 
           <div className="flex gap-2">
@@ -174,11 +191,16 @@ export default function SchedulePage() {
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button onClick={addBlock}>Adicionar</Button>
           <Button variant="ghost" onClick={saveAll} disabled={saving}>
             {saving ? "A guardar..." : "Guardar na API"}
           </Button>
+          {blocos.length > 0 && (
+            <Button variant="danger" onClick={clearAll}>
+              Limpar tudo
+            </Button>
+          )}
         </div>
       </Card>
 

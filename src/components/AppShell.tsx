@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 /**
  * Todas as views possíveis da app
  */
-export type NavKey = "dashboard" | "schedule" | "groups" | "sessions" | "colegas";
+export type NavKey = "dashboard" | "schedule" | "groups" | "sessions" | "colegas" | "profile" | "calendar";
 
 /**
  * Props do AppShell
@@ -33,8 +33,10 @@ export default function AppShell({
         <nav className="space-y-1">
           <NavItem label="Dashboard" active={active === "dashboard"} onClick={() => onChange("dashboard")} />
           <NavItem label="Horário" active={active === "schedule"} onClick={() => onChange("schedule")} />
+          <NavItem label="Calendário" active={active === "calendar"} onClick={() => onChange("calendar")} />
           <NavItem label="Grupos" active={active === "groups"} onClick={() => onChange("groups")} />
           <NavItem label="Colegas" active={active === "colegas"} onClick={() => onChange("colegas")} />
+          <NavItem label="Perfil" active={active === "profile"} onClick={() => onChange("profile")} />
         </nav>
 
         {onLogout && (
