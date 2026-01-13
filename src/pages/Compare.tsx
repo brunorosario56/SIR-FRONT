@@ -3,6 +3,7 @@ import { getMyColegas, getUserSchedule } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
 import type { Schedule, User } from "../api/types";
 import { Button, Card } from "../components/ui";
+import { Page } from "../components/Page";
 
 const days = ["", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8h-22h
@@ -58,9 +59,7 @@ export default function Compare() {
     const schedule = schedules.get(userId);
     if (!schedule) return false;
 
-    const horaInicio = hora * 60;
-    const horaFim = (hora + 1) * 60;
-
+    // Check if this hour falls within any block
     return schedule.blocos.some(bloco => {
       if (bloco.diaSemana !== dia) return false;
       
@@ -68,17 +67,18 @@ export default function Compare() {
       const [eh, em] = bloco.horaFim.split(':').map(Number);
       const blocoInicio = bh * 60 + bm;
       const blocoFim = eh * 60 + em;
+      
+      // Check if the hour overlaps with the block
+      const horaInicio = hora * 60;
 
-      return !(horaFim <= blocoInicio || horaInicio >= blocoFim);
+      // Block occupies this hour if it starts before or during this hour AND ends after this hour starts
+      return blocoInicio <= horaInicio && blocoFim > horaInicio;
     });
   }
 
   function getBlockInfo(userId: string, dia: number, hora: number): string | null {
     const schedule = schedules.get(userId);
     if (!schedule) return null;
-
-    const horaInicio = hora * 60;
-    const horaFim = (hora + 1) * 60;
 
     const bloco = schedule.blocos.find(b => {
       if (b.diaSemana !== dia) return false;
@@ -87,8 +87,10 @@ export default function Compare() {
       const [eh, em] = b.horaFim.split(':').map(Number);
       const blocoInicio = bh * 60 + bm;
       const blocoFim = eh * 60 + em;
+      
+      const horaInicio = hora * 60;
 
-      return !(horaFim <= blocoInicio || horaInicio >= blocoFim);
+      return blocoInicio <= horaInicio && blocoFim > horaInicio;
     });
 
     return bloco ? `${bloco.disciplina}${bloco.sala ? ` (${bloco.sala})` : ''}` : null;
@@ -102,13 +104,9 @@ export default function Compare() {
   const selectedUsers = colegas.filter(c => selectedIds.includes(c._id));
 
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-xl font-semibold">Comparar Horários</div>
-        <div className="text-white/60 text-sm">Encontra slots livres em comum</div>
-      </div>
-
-      {err && <div className="text-sm text-red-300 bg-red-950/30 border border-red-500/30 rounded-lg p-3">{err}</div>}
+    <Page title="Comparar Horários">
+      <div className="space-y-4">
+        {err && <div className="text-sm text-red-300 bg-red-950/30 border border-red-500/30 rounded-lg p-3">{err}</div>}
 
       <Card>
         <div className="text-sm text-white/60 mb-3">Seleciona colegas para comparar</div>
@@ -240,7 +238,7 @@ export default function Compare() {
           </div>
         </Card>
       )}
-    </div>
+      </div>
+    </Page>
   );
 }
-

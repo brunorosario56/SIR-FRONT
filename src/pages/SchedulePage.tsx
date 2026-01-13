@@ -244,7 +244,7 @@ export default function SchedulePage() {
                       );
 
                       return (
-                        <div key={day} className="p-2 border-r border-white/10 last:border-r-0 relative">
+                        <div key={day} className="border-r border-white/10 last:border-r-0 relative">
                           {dayBlocks.map((block, blockIdx) => {
                             const colorClass = disciplineColors.get(block.disciplina) || "from-gray-500/20 to-gray-600/20 border-gray-500/40";
                             const originalIdx = blocos.findIndex(b => b === block);
@@ -253,9 +253,9 @@ export default function SchedulePage() {
                             return (
                               <div
                                 key={blockIdx}
-                                className={`absolute inset-x-2 top-2 rounded-lg border bg-gradient-to-br ${colorClass} p-2 group hover:scale-[1.02] transition-transform cursor-pointer overflow-hidden`}
+                                className={`absolute left-0.5 right-0.5 top-0 rounded-lg border bg-gradient-to-br ${colorClass} p-2 group hover:scale-[1.02] transition-transform cursor-pointer overflow-hidden`}
                                 style={{
-                                  height: `calc(${spanSlots * 60}px - 8px)`,
+                                  height: `${spanSlots * 60}px`,
                                   zIndex: 10
                                 }}
                               >

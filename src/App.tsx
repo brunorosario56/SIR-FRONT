@@ -9,6 +9,7 @@ import ColegasPage from "./pages/ColegasPage";
 import StudySessionsPage from "./pages/StudySessionsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { CalendarPage } from "./pages/CalendarPage";
+import Compare from "./pages/Compare";
 import AppShell, { type NavKey } from "./components/AppShell";
 import type { PresenceEntry } from "./api/types";
 
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="sessions" element={<StudySessionsPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="compare" element={<Compare />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
