@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6">
           <div className="text-3xl font-semibold">Classmate Sync</div>
-          <div className="text-white/70">A tua plataforma de partilha de ficheiros académicos.</div>
+          <div className="text-zinc-400">Organiza, colabora e encontra tempo para estudares em conjunto.</div>
         </div>
 
         <Card>
