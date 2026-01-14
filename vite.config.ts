@@ -1,7 +1,17 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  server: {
+    host: true,
+    allowedHosts: [
+      'classmate-sync.maruqes.com',
+      '.maruqes.com'
+    ]
+  },
+  preview: {
+    allowedHosts: [
+      'classmate-sync.maruqes.com',
+      '.maruqes.com'
+    ]
+  }
 })
