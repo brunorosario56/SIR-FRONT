@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6">
           <div className="text-3xl font-semibold">Classmate Sync</div>
-          <div className="text-white/60 text-sm">Login + horários + grupos + slots comuns + eventos</div>
+          <div className="text-white/70">A tua plataforma de partilha de ficheiros académicos.</div>
         </div>
 
         <Card>
@@ -84,9 +84,6 @@ export default function LoginPage() {
           </form>
         </Card>
 
-        <div className="text-xs text-white/50 mt-4">
-          Dica: confirma no backend se CORS está a aceitar o origin do Vite.
-        </div>
       </div>
     </div>
   );
