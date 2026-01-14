@@ -12,7 +12,7 @@ import {
   updateGroupEvent
 } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
-import type { Group, GroupSlotsResponse, Slot, StudyEvent, User } from "../api/types";
+import type { Group, GroupSlotsResponse, StudyEvent } from "../api/types";
 import { Button, Card, Input, Label, Pill } from "../components/ui";
 import { isoNowPlus } from "../utils/dateUtils";
 

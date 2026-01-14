@@ -133,11 +133,6 @@ export default function SchedulePage() {
     return Math.max(1, Math.ceil(durationMinutes / 30));
   }
 
-  // Helper function to find which slot index a time belongs to
-  function findSlotIndex(time: string): number {
-    return timeSlots.findIndex(slot => slot === time);
-  }
-
   if (loading) return <div className="p-2">A carregar…</div>;
 
   return (
@@ -227,7 +222,7 @@ export default function SchedulePage() {
               </div>
 
               {/* Time slots rows */}
-              {timeSlots.slice(0, -1).map((startTime, idx) => {
+              {timeSlots.slice(0, -1).map((startTime) => {
                 return (
                   <div key={startTime} className="grid grid-cols-8 border-b border-white/10 last:border-b-0 h-[60px]">
                     {/* Time label */}
